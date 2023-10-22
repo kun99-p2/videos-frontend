@@ -10,6 +10,9 @@
     </div>
     <button @click="logout" to="/">Logout</button>
   </nav>
+  <div v-for="video in videos" :key="video">
+    <video controls :src="video" width="400"></video>
+  </div>
 </template>
 
 <style>
@@ -28,6 +31,11 @@ nav button {
 import axios from "axios";
 import { useAuthStore } from "../stores/store";
 export default {
+  data() {
+    return {
+      videos: [],
+    };
+  },
   methods: {
     logout() {
       axios
@@ -42,13 +50,23 @@ export default {
         });
     },
   },
+  mounted() {
+    axios
+      .get("http://localhost:5001/videos")
+      .then((response) => {
+        this.videos = response.data.videos;
+      })
+      .catch((error) => {
+        console.error("Couldn't fetch videos:", error);
+      });
+  },
   beforeMount() {
     console.log("running");
     axios
-      .get("http://localhost:5000/get_user")
+      .get("http://localhost:5000/fetch_username")
       .then((response) => {
         console.log(response.data.name)
-        axios.post("http://localhost:5000/tok", {
+        axios.post("http://localhost:5000/get_token", {
           username: response.data.name,
         })
         .then((response) => {

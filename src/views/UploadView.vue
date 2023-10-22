@@ -88,6 +88,7 @@ buttons button {
 
 <script>
 import axios from "axios";
+import { useAuthStore } from "../stores/store";
 export default {
   data() {
     return {
@@ -101,7 +102,7 @@ export default {
     handleDrop(event) {
       event.preventDefault();
       this.video = event.dataTransfer.files[0];
-      this.instruction = "Video dropped."
+      this.instruction = "Video dropped.";
     },
     // no check for video length and thumbnail generation not implemented yet
     uploadVideo() {
@@ -116,17 +117,28 @@ export default {
       }
     },
     uploadVideoToS3() {
-      let formData = new FormData();
-      formData.append("video", this.video);
-      formData.append("title", this.title);
-      formData.append("desc", this.desc);
+      const auth = useAuthStore();
       axios
-        .post("http://localhost:5001/upload", formData)
+        .post("http://localhost:5000/get_user_using_token", {
+          token: auth.getToken(),
+        })
         .then((response) => {
-          console.log("Video uploaded successfully:", response.data);
+          let formData = new FormData();
+          formData.append("video", this.video);
+          formData.append("title", this.title);
+          formData.append("desc", this.desc);
+          formData.append("user", response.data.username);
+          axios
+            .post("http://localhost:5001/upload", formData)
+            .then((response) => {
+              console.log("Video uploaded successfully:", response.data);
+            })
+            .catch((error) => {
+              console.error("Error uploading video:", error);
+            });
         })
         .catch((error) => {
-          console.error("Error uploading video:", error);
+          console.error("Couldn't retrieve username:", error);
         });
     },
   },
