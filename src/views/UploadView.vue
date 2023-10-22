@@ -26,7 +26,9 @@
         <RouterLink to="/">
           <button>Cancel</button>
         </RouterLink>
-        <button @click="uploadVideo">OK</button>
+        <RouterLink to="/list">
+          <button @click="uploadVideo">OK</button>
+        </RouterLink>
       </div>
     </div>
   </div>
