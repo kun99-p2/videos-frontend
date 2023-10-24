@@ -1,27 +1,31 @@
 <template>
-  <div class="thumbnail-container">
+  <div class="container">
     <div
       v-for="thumbnail in thumbnails"
       :key="thumbnail"
       class="thumbnail-item"
     >
       <!--<video controls :src="video" height="300" width="500"></video>-->
-      <img :src="thumbnail" height="300" width="500" />
+      <img :src="thumbnail"/>
     </div>
   </div>
 </template>
 
 <style>
-.thumbnail-container {
+.container {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 .thumbnail-item {
-  margin-left: 10px;
-  margin-right: 10px;
   margin-top: 20px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+.thumbnail-item img {
+  height: 300px;
+  width: 80%;
 }
 </style>
 
