@@ -10,8 +10,11 @@
     </div>
     <button @click="logout" to="/">Logout</button>
   </nav>
-  <div v-for="video in videos" :key="video">
-    <video controls :src="video" width="400"></video>
+  <div class="thumbnail-container">
+    <div v-for="thumbnail in thumbnails" :key="thumbnail" class="thumbnail-item">
+      <!--<video controls :src="video" height="300" width="500"></video>-->
+      <img :src="thumbnail" height="300" width="500"/>
+    </div>
   </div>
 </template>
 
@@ -25,6 +28,17 @@ nav button {
   height: 50px;
   width: 90px;
 }
+.thumbnail-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.thumbnail-item {
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 20px;
+}
 </style>
 
 <script>
@@ -34,6 +48,7 @@ export default {
   data() {
     return {
       videos: [],
+      thumbnails: [],
     };
   },
   methods: {
@@ -52,28 +67,27 @@ export default {
   },
   mounted() {
     axios
-      .get("http://localhost:5001/videos")
+      .get("http://localhost:5001/thumbnails")
       .then((response) => {
-        this.videos = response.data.videos;
+        this.thumbnails = response.data.thumbnails;
       })
       .catch((error) => {
-        console.error("Couldn't fetch videos:", error);
+        console.error("Couldn't fetch thumbnails:", error);
       });
   },
   beforeMount() {
-    console.log("running");
     axios
       .get("http://localhost:5000/fetch_username")
       .then((response) => {
-        console.log(response.data.name)
-        axios.post("http://localhost:5000/get_token", {
-          username: response.data.name,
-        })
-        .then((response) => {
-          const auth = useAuthStore();
-          auth.setToken(response.data.token);
-          console.log(auth.getToken())
-        })
+        console.log("user: ", response.data.name);
+        axios
+          .post("http://localhost:5000/get_token", {
+            username: response.data.name,
+          })
+          .then((response) => {
+            const auth = useAuthStore();
+            auth.setToken(response.data.token);
+          });
       })
       .catch((error) => {
         console.error(error);

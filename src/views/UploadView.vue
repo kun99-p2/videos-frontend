@@ -26,9 +26,7 @@
         <RouterLink to="/">
           <button>Cancel</button>
         </RouterLink>
-        <RouterLink to="/list">
-          <button @click="uploadVideo">OK</button>
-        </RouterLink>
+        <button @click="uploadVideo">OK</button>
       </div>
     </div>
   </div>
@@ -115,7 +113,7 @@ export default {
           alert("Missing title or description.");
         }
       } else {
-        alert("Not a video file.");
+        alert("Missing video file.");
       }
     },
     uploadVideoToS3() {
@@ -133,9 +131,12 @@ export default {
           axios
             .post("http://localhost:5001/upload", formData)
             .then((response) => {
+              alert(response.data.message);
               console.log("Video uploaded successfully:", response.data);
+              window.location = "list";
             })
             .catch((error) => {
+              alert(error.response.data.message);
               console.error("Error uploading video:", error);
             });
         })
