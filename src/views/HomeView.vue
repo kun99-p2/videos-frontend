@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="videos-container">
     <div
       v-for="thumbnail in thumbnails"
       :key="thumbnail"
@@ -12,8 +12,9 @@
 </template>
 
 <style>
-.container {
+.videos-container {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .thumbnail-item {
@@ -25,7 +26,7 @@
 }
 .thumbnail-item img {
   height: 300px;
-  width: 80%;
+  width: 400px;
 }
 </style>
 

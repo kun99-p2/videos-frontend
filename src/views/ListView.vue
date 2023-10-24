@@ -5,7 +5,10 @@
       <div class="thumbnail-container">
         <img :src="thumbnail[0].file" />
         <h3 class="thumbnail-title">{{ thumbnail[0].metadata.title }}</h3>
-        <button @click="deleteThumbnail(thumbnail.id)" class="delete-button">
+        <button
+          @click="deleteVideo(thumbnail[0].metadata.title, thumbnail[0].metadata.time)"
+          class="delete-button"
+        >
           X
         </button>
       </div>
@@ -45,6 +48,7 @@
 
 <script>
 import axios from "axios";
+import { useAuthStore } from "../stores/store";
 export default {
   data() {
     return {
@@ -52,7 +56,31 @@ export default {
     };
   },
   methods: {
-    deleteVideo() {},
+    deleteVideo(title, time) {
+      console.log("Here");
+      axios
+        .get("http://localhost:5000/fetch_username")
+        .then((response) => {
+          axios
+            .delete("http://localhost:5001/delete", {
+              data: {
+                username: response.data.name,
+                title: title,
+                time: time,
+              },
+            })
+            .then((response) => {
+              alert(response.data.message);
+              window.location.href = "http://localhost:4000/list";
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        })
+        .catch((error) => {
+          console.error("Couldn't delete thumbnail:", error);
+        });
+    },
   },
   mounted() {
     axios
@@ -64,7 +92,7 @@ export default {
           })
           .then((response) => {
             this.thumbnails = response.data.thumbnails;
-            console.log(this.thumbnails)
+            console.log(this.thumbnails);
           })
           .catch((error) => {
             console.error("Couldn't fetch thumbnails:", error);
