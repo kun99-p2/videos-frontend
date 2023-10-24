@@ -6,7 +6,7 @@
       class="thumbnail-item"
     >
       <!--<video controls :src="video" height="300" width="500"></video>-->
-      <img :src="thumbnail"/>
+      <img :src="thumbnail[0].file"/>
     </div>
   </div>
 </template>
@@ -22,11 +22,11 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  cursor: pointer;
 }
 .thumbnail-item img {
   height: 300px;
   width: 400px;
+  cursor: pointer;
 }
 </style>
 
@@ -45,6 +45,7 @@ export default {
       .get("http://localhost:5001/thumbnails")
       .then((response) => {
         this.thumbnails = response.data.thumbnails;
+        console.log(this.thumbnails)
       })
       .catch((error) => {
         console.error("Couldn't fetch thumbnails:", error);
@@ -66,6 +67,8 @@ export default {
       })
       .catch((error) => {
         console.error(error);
+        alert("Login again");
+        window.location.href = "http://localhost:3000";
       });
   },
 };

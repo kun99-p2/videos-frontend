@@ -3,10 +3,10 @@
   <div>
     <div v-for="thumbnail in thumbnails" :key="thumbnail">
       <div class="thumbnail-container">
-        <img :src="thumbnail[0].file" />
+        <img :src="thumbnail[0].file" @click="clickedVideo(thumbnail[0].metadata.id)"/>
         <h3 class="thumbnail-title">{{ thumbnail[0].metadata.title }}</h3>
         <button
-          @click="deleteVideo(thumbnail[0].metadata.title, thumbnail[0].metadata.time)"
+          @click="deleteVideo(thumbnail[0].metadata.title, thumbnail[0].metadata.id)"
           class="delete-button"
         >
           X
@@ -48,7 +48,6 @@
 
 <script>
 import axios from "axios";
-import { useAuthStore } from "../stores/store";
 export default {
   data() {
     return {
@@ -56,8 +55,10 @@ export default {
     };
   },
   methods: {
-    deleteVideo(title, time) {
-      console.log("Here");
+    clickedVideo(id) {
+      window.location.href = "http://localhost:4001/video?vid="+ id;
+    },
+    deleteVideo(title, id) {
       axios
         .get("http://localhost:5000/fetch_username")
         .then((response) => {
@@ -66,7 +67,7 @@ export default {
               data: {
                 username: response.data.name,
                 title: title,
-                time: time,
+                id: id,
               },
             })
             .then((response) => {
