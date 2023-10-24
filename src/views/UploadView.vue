@@ -127,6 +127,10 @@ export default {
           axios
             .post("http://localhost:5001/upload", formData)
             .then((response) => {
+              axios
+              .post("http://localhost:5000/initialize", {
+                video_id: response.data.id
+              })
               alert(response.data.message);
               console.log("Video uploaded successfully:", response.data);
               window.location = "list";

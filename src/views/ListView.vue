@@ -3,10 +3,15 @@
   <div>
     <div v-for="thumbnail in thumbnails" :key="thumbnail">
       <div class="thumbnail-container">
-        <img :src="thumbnail[0].file" @click="clickedVideo(thumbnail[0].metadata.id)"/>
+        <img
+          :src="thumbnail[0].file"
+          @click="clickedVideo(thumbnail[0].metadata.id)"
+        />
         <h3 class="thumbnail-title">{{ thumbnail[0].metadata.title }}</h3>
         <button
-          @click="deleteVideo(thumbnail[0].metadata.title, thumbnail[0].metadata.id)"
+          @click="
+            deleteVideo(thumbnail[0].metadata.title, thumbnail[0].metadata.id)
+          "
           class="delete-button"
         >
           X
@@ -56,7 +61,7 @@ export default {
   },
   methods: {
     clickedVideo(id) {
-      window.location.href = "http://localhost:4001/video?vid="+ id;
+      window.location.href = "http://localhost:4001/video?vid=" + id;
     },
     deleteVideo(title, id) {
       axios
@@ -71,6 +76,7 @@ export default {
               },
             })
             .then((response) => {
+              axios.delete("http://localhost:5000/remove_views/${id}");
               alert(response.data.message);
               window.location.href = "http://localhost:4000/list";
             })
@@ -93,7 +99,6 @@ export default {
           })
           .then((response) => {
             this.thumbnails = response.data.thumbnails;
-            console.log(this.thumbnails);
           })
           .catch((error) => {
             console.error("Couldn't fetch thumbnails:", error);
