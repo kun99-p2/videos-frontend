@@ -6,7 +6,7 @@
       class="thumbnail-item"
     >
       <!--<video controls :src="video" height="300" width="500"></video>-->
-      <img :src="thumbnail[0].file"/>
+      <img :src="thumbnail[0].file" @click="clickedVideo(thumbnail[0].metadata.id)"/>
     </div>
   </div>
 </template>
@@ -40,6 +40,11 @@ export default {
       thumbnails: [],
     };
   },
+  methods: {
+    clickedVideo(id) {
+      window.location.href = "http://localhost:4001/video?vid="+ id;
+    },
+  },
   mounted() {
     axios
       .get("http://localhost:5001/thumbnails")
@@ -50,6 +55,7 @@ export default {
       .catch((error) => {
         console.error("Couldn't fetch thumbnails:", error);
       });
+      console.log(this.thumbnails)
   },
   beforeMount() {
     axios
