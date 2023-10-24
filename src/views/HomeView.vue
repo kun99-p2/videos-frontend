@@ -46,18 +46,43 @@ export default {
     clickedVideo(id) {
       window.location.href = "http://localhost:4001/video?vid=" + id;
     },
+    sortVids() {
+      let axiosRequests = [];
+      for (let thumbnail of this.thumbnails) {
+        axiosRequests.push(
+          axios
+            .get("http://localhost:5000/views/" + thumbnail[0].metadata.id)
+            .then((response) => {
+              thumbnail[0]["views"] = response.data.views;
+            })
+        );
+      }
+      Promise.all(axiosRequests)
+        .then(() => {
+          this.thumbnails.sort(function (a, b) {
+            if (parseInt(a[0]["views"]) < parseInt(b[0]["views"])) return 1;
+            if (parseInt(a[0]["views"]) > parseInt(b[0]["views"])) return -1;
+            return 0;
+          });
+          console.log(this.thumbnails);
+        })
+        .catch((error) => {
+          console.error("Error fetching views:", error);
+        });
+    },
   },
-  mounted() {
+  beforeMount() {
     axios
       .get("http://localhost:5001/thumbnails")
       .then((response) => {
         this.thumbnails = response.data.thumbnails;
+        this.sortVids();
       })
       .catch((error) => {
         console.error("Couldn't fetch thumbnails:", error);
       });
   },
-  beforeMount() {
+  created() {
     axios
       .get("http://localhost:5000/fetch_username")
       .then((response) => {
