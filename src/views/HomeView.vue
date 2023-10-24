@@ -1,33 +1,17 @@
 <template>
-  <nav>
-    <div style="margin-left: 750px">
-      <RouterLink to="/list">
-        <button>My Videos</button>
-      </RouterLink>
-      <RouterLink to="/upload">
-        <button>Upload</button>
-      </RouterLink>
-    </div>
-    <button @click="logout" to="/">Logout</button>
-  </nav>
   <div class="thumbnail-container">
-    <div v-for="thumbnail in thumbnails" :key="thumbnail" class="thumbnail-item">
+    <div
+      v-for="thumbnail in thumbnails"
+      :key="thumbnail"
+      class="thumbnail-item"
+    >
       <!--<video controls :src="video" height="300" width="500"></video>-->
-      <img :src="thumbnail" height="300" width="500"/>
+      <img :src="thumbnail" height="300" width="500" />
     </div>
   </div>
 </template>
 
 <style>
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-nav button {
-  height: 50px;
-  width: 90px;
-}
 .thumbnail-container {
   display: flex;
   flex-wrap: wrap;
@@ -50,20 +34,6 @@ export default {
       videos: [],
       thumbnails: [],
     };
-  },
-  methods: {
-    logout() {
-      axios
-        .post("http://localhost:5000/logout")
-        .then((response) => {
-          const auth = useAuthStore();
-          auth.clearToken;
-          window.location.href = "http://localhost:3000";
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    },
   },
   mounted() {
     axios

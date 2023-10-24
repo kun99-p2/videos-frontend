@@ -1,16 +1,47 @@
 <template>
   <h1 style="display: flex; justify-content: center">My Videos</h1>
-  <div v-for="video in videos" :key="video">
-    <video controls :src="video" width="400"></video>
+  <div>
+    <div v-for="thumbnail in thumbnails" :key="thumbnail">
+      <div class="thumbnail-container">
+        <img :src="thumbnail" height="200" width="300" />
+        <h3 class="thumbnail-title">{{ thumbnail.title }}</h3>
+        <button @click="deleteThumbnail(thumbnail.id)" class="delete-button">
+          Delete
+        </button>
+      </div>
+    </div>
   </div>
 </template>
+
+<style>
+.row img {
+  display: flex;
+  align-items: start;
+  cursor: pointer;
+}
+.thumbnail-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.thumbnail-title {
+  margin: 0 10px;
+  flex-grow: 1;
+}
+.delete-button {
+  background-color: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+</style>
 
 <script>
 import axios from "axios";
 export default {
   data() {
     return {
-      videos: [],
+      thumbnails: [],
     };
   },
   methods: {
@@ -21,14 +52,14 @@ export default {
       .get("http://localhost:5000/fetch_username")
       .then((response) => {
         axios
-          .post("http://localhost:5001/my_videos", {
+          .post("http://localhost:5001/my_thumbnails", {
             username: response.data.name,
           })
           .then((response) => {
-            this.videos = response.data.videos;
+            this.thumbnails = response.data.thumbnails;
           })
           .catch((error) => {
-            console.error("Couldn't fetch videos:", error);
+            console.error("Couldn't fetch thumbnails:", error);
           });
       })
       .catch((error) => {
@@ -37,6 +68,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>
