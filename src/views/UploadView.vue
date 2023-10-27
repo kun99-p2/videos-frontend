@@ -92,19 +92,24 @@ export default {
       video: null,
       title: "",
       desc: "",
+      user: "",
     };
   },
   methods: {
-    handleDrop(event) {
+    async handleDrop(event) {
       event.preventDefault();
       this.video = event.dataTransfer.files[0];
       this.instruction = "Video dropped.";
     },
-    // no check for video length and thumbnail generation not implemented yet
-    uploadVideo() {
+    async uploadVideo() {
       if (this.video && this.video.type.startsWith("video/")) {
         if (this.title && this.desc) {
-          this.uploadVideoToS3();
+          const duration = await this.checkVideoDuration();
+          if (duration <= 60) {
+            await this.uploadVideoToS3();
+          } else {
+            alert("Video exceeding 60 seconds.");
+          }
         } else {
           alert("Missing title or description.");
         }
@@ -112,38 +117,65 @@ export default {
         alert("Missing video file.");
       }
     },
-    uploadVideoToS3() {
-      const auth = useAuthStore();
-      axios
-        .post("http://localhost:5000/get_user_using_token", {
-          token: auth.getToken(),
-        })
-        .then((response) => {
-          let formData = new FormData();
-          formData.append("video", this.video);
-          formData.append("title", this.title);
-          formData.append("desc", this.desc);
-          formData.append("user", response.data.username);
-          axios
-            .post("http://localhost:5001/upload", formData)
-            .then((response) => {
-              axios
-              .post("http://localhost:5000/initialize", {
-                video_id: response.data.id
-              })
-              alert(response.data.message);
-              console.log("Video uploaded successfully:", response.data);
-              window.location = "list";
-            })
-            .catch((error) => {
-              alert(error.response.data.message);
-              console.error("Error uploading video:", error);
-            });
-        })
-        .catch((error) => {
-          console.error("Couldn't retrieve username:", error);
+    async checkVideoDuration() {
+      return new Promise((resolve, reject) => {
+        const videoElement = document.createElement("video");
+        videoElement.src = URL.createObjectURL(this.video);
+        videoElement.addEventListener("loadedmetadata", () => {
+          this.videoDuration = videoElement.duration;
+          resolve(this.videoDuration);
         });
+        videoElement.addEventListener("error", (error) => {
+          reject(error);
+        });
+      });
     },
+    async uploadVideoToS3() {
+      const formData = new FormData();
+      formData.append("title", this.title);
+      formData.append("user", this.user);
+      try {
+        const response = await axios.post(
+          "http://localhost:5001/get_presigned_url",
+          formData
+        );
+        const presignedUrl = response.data.url;
+        console.log(presignedUrl);
+        await axios.put(presignedUrl, this.video, {
+          headers: {
+            "Content-Type": "video/mp4",
+            "title": this.title,
+            "desc": this.desc,
+            "time": response.data.datetime,
+            "id": response.data.id
+          },
+        });
+        // await axios.post("http://localhost:5001/enqueue_video_task", {
+        //   key: "videos/" + this.user + "/" + this.title,
+        // });
+        axios.post("http://localhost:5000/initialize", {
+          video_id: response.data.id,
+        });
+        console.log("Video uploaded successfully:");
+        window.location = "list";
+      } catch (error) {
+        console.error("Error uploading video:", error);
+      }
+    },
+  },
+  created() {
+    //getting username using authentication token
+    const auth = useAuthStore();
+    axios
+      .post("http://localhost:5000/get_user_using_token", {
+        token: auth.getToken(),
+      })
+      .then((response) => {
+        this.user = response.data.username;
+      })
+      .catch((error) => {
+        console.log(error.response.data.message);
+      });
   },
 };
 </script>
