@@ -34,54 +34,6 @@
   </div>
 </template>
 
-<style>
-.containers-container {
-  display: flex;
-  justify-content: center;
-}
-.container {
-  display: flex;
-}
-.thumbnail {
-  width: 400px;
-  height: 300px;
-  object-fit: cover;
-  border: 1px solid #ccc;
-}
-.details {
-  flex: 1;
-  margin-left: 20px;
-}
-.input {
-  margin-bottom: 20px;
-  width: 600px;
-}
-.input label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.input input[type="text"],
-.input textarea {
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-}
-.buttons {
-  display: flex;
-  padding-left: 500px;
-  justify-content: space-between;
-  width: 100px;
-}
-buttons button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-</style>
-
 <script>
 import axios from "axios";
 import { useAuthStore } from "../stores/store";
@@ -143,20 +95,29 @@ export default {
         console.log(presignedUrl);
         await axios.put(presignedUrl, this.video, {
           headers: {
+            "x-amz-meta-title": this.title,
+            "x-amz-meta-id": response.data.id,
+            "x-amz-meta-time": response.data.datetime,
             "Content-Type": "video/mp4",
-            "title": this.title,
-            "desc": this.desc,
-            "time": response.data.datetime,
-            "id": response.data.id
+            "Metadata": {
+              "x-amz-meta-title": this.title,
+              "x-amz-meta-id": response.data.id,
+              "x-amz-meta-time": response.data.datetime
+            }
           },
         });
-        // await axios.post("http://localhost:5001/enqueue_video_task", {
-        //   key: "videos/" + this.user + "/" + this.title,
-        // });
-        axios.post("http://localhost:5000/initialize", {
+        console.log("Video uploaded successfully");
+        await axios.post("http://localhost:5001/thumbnail", {
+          key: "videos/"+this.user+"/"+this.title,
+          tb_key: "thumbnail/"+this.user+"/"+this.title,
+          title: this.title,
+          id: response.data.id
+        });
+        console.log("Thumbnail fetched")
+        await axios.post("http://localhost:5000/initialize", {
           video_id: response.data.id,
         });
-        console.log("Video uploaded successfully:");
+        console.log("Added to db");
         window.location = "list";
       } catch (error) {
         console.error("Error uploading video:", error);
@@ -179,3 +140,51 @@ export default {
   },
 };
 </script>
+
+<style>
+.containers-container {
+  display: flex;
+  justify-content: center;
+}
+.container {
+  display: flex;
+}
+.thumbnail {
+  width: 400px;
+  height: 300px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+}
+.details {
+  flex: 1;
+  margin-left: 20px;
+}
+.input {
+  margin-bottom: 20px;
+  width: 600px;
+}
+.input label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.input input[type="text"],
+.input textarea {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+}
+.buttons {
+  display: flex;
+  padding-left: 500px;
+  justify-content: space-between;
+  width: 100px;
+}
+buttons button {
+  margin-left: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+</style>
