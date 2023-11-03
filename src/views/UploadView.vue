@@ -109,10 +109,11 @@ export default {
         console.log("Video uploaded successfully");
         await axios.post("http://localhost:5001/thumbnail", {
           key: "videos/"+this.user+"/"+this.title,
-          tb_key: "thumbnail/"+this.user+"/"+this.title,
+          user: this.user,
           title: this.title,
-          id: response.data.id
-        });
+          id: response.data.id,
+          time: response.data.datetime
+        }); 
         console.log("Thumbnail fetched")
         await axios.post("http://localhost:5000/initialize", {
           video_id: response.data.id,

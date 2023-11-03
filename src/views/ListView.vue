@@ -5,7 +5,7 @@
       <div class="thumbnail-container">
         <img
           :src="thumbnail[0].file"
-          @click="clickedVideo(thumbnail[0].metadata.id)"
+          @click="clickedVideo(thumbnail[0].metadata.id, thumbnail[0].metadata.title)"
         />
         <h3 class="thumbnail-title">{{ thumbnail[0].metadata.title }}</h3>
         <button
@@ -56,33 +56,27 @@ import axios from "axios";
 export default {
   data() {
     return {
+      user: "",
       thumbnails: [],
     };
   },
   methods: {
-    clickedVideo(id) {
-      window.location.href = "http://localhost:4001/video?vid=" + id;
+    clickedVideo(id, title) {
+      window.location.href = "http://localhost:4001/video?vid=" + id + "&user=" + this.user + "&title=" + title;
     },
     deleteVideo(title, id) {
       axios
-        .get("http://localhost:5000/fetch_username")
+        .delete("http://localhost:5001/delete", {
+          data: {
+            username: this.user,
+            title: title,
+            id: id,
+          },
+        })
         .then((response) => {
-          axios
-            .delete("http://localhost:5001/delete", {
-              data: {
-                username: response.data.name,
-                title: title,
-                id: id,
-              },
-            })
-            .then((response) => {
-              axios.delete("http://localhost:5000/remove_views/${id}");
-              alert(response.data.message);
-              window.location.href = "http://localhost:4000/list";
-            })
-            .catch((error) => {
-              console.error(error);
-            });
+          axios.delete("http://localhost:5000/remove_views/${id}");
+          alert(response.data.message);
+          window.location.href = "http://localhost:4000/list";
         })
         .catch((error) => {
           console.error("Couldn't delete thumbnail:", error);
@@ -93,6 +87,8 @@ export default {
     axios
       .get("http://localhost:5000/fetch_username")
       .then((response) => {
+        this.user = response.data.name
+        console.log(this.user)
         axios
           .post("http://localhost:5001/my_thumbnails", {
             username: response.data.name,

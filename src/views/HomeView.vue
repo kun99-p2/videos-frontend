@@ -8,7 +8,7 @@
       <!--<video controls :src="video" height="300" width="500"></video>-->
       <img
         :src="thumbnail[0].file"
-        @click="clickedVideo(thumbnail[0].metadata.id)"
+        @click="clickedVideo(thumbnail[0].metadata.id, thumbnail[0].metadata.title)"
       />
     </div>
   </div>
@@ -39,12 +39,13 @@ import { useAuthStore } from "../stores/store";
 export default {
   data() {
     return {
+      user: "",
       thumbnails: [],
     };
   },
   methods: {
-    clickedVideo(id) {
-      window.location.href = "http://localhost:4001/video?vid=" + id;
+    clickedVideo(id, title) {
+      window.location.href = "http://localhost:4001/video?vid=" + id + "&user=" + this.user + "&title=" + title;
     },
     sortVids() {
       let axiosRequests = [];
@@ -86,6 +87,7 @@ export default {
     axios
       .get("http://localhost:5000/fetch_username")
       .then((response) => {
+        this.user = response.data.name;
         console.log("user: ", response.data.name);
         axios
           .post("http://localhost:5000/get_token", {
