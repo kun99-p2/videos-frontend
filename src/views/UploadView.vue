@@ -142,6 +142,7 @@ export default {
           key: "videos/" + this.user + "/" + this.title,
           user: this.user,
           title: this.title,
+          desc: this.desc,
           id: response.data.id,
           time: response.data.datetime,
         });
