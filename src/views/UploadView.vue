@@ -1,37 +1,65 @@
 <template>
   <h1 style="display: flex; justify-content: center">Upload</h1>
-  <div class="containers-container">
-    <div class="container">
-      <div
+  <div class="flex justify-center">
+    <div class="flex items-center justify-center w-96">
+      <label
+        for="dropzone-file"
         @dragover.prevent
         @dragenter.prevent
         @drop="handleDrop"
-        class="thumbnail"
+        class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 hover:bg-gray-100"
       >
-        <p>{{ this.instruction }}</p>
-      </div>
-      <div class="details">
-        <div class="input">
-          <label for="title">Title:</label>
-          <input type="text" v-model="title" placeholder="Enter video title" />
+        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+          <svg
+            class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 16"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+            />
+          </svg>
+          <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+            <span class="font-semibold">Click to upload</span> or drag and drop
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">MP4</p>
         </div>
-        <div class="input">
-          <label for="description">Description:</label>
-          <textarea
-            rows="9"
-            v-model="desc"
-            placeholder="Enter video description"
-          ></textarea>
-        </div>
-        <div class="buttons">
-          <RouterLink to="/">
-            <button>Cancel</button>
-          </RouterLink>
-          <button @click="uploadVideo">OK</button>
-        </div>
-      </div>
+        <input id="dropzone-file" type="file" class="hidden" />
+      </label>
+    </div>
+    <div class="">
+      <label for="title" class="block mb-2 text-sm font-medium text-white"
+        >Title:</label
+      >
+      <textarea
+        id="message"
+        rows="1"
+        v-model="desc"
+        class="block w-96 p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+        placeholder="Enter title"
+      ></textarea>
+      <label for="description" class="block mb-2 text-sm font-medium text-white"
+        >Description:</label
+      >
+      <textarea
+        id="message"
+        rows="9"
+        v-model="desc"
+        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+        placeholder="Enter video description"
+      ></textarea>
     </div>
   </div>
+  <RouterLink to="/">
+    <button class="text-white">Cancel</button>
+  </RouterLink>
+  <button class="text-white" @click="uploadVideo">OK</button>
 </template>
 
 <script>
@@ -98,23 +126,26 @@ export default {
             "x-amz-meta-title": this.title,
             "x-amz-meta-id": response.data.id,
             "x-amz-meta-time": response.data.datetime,
+            "x-amz-meta-desc": this.desc,
             "Content-Type": "video/mp4",
-            "Metadata": {
+            Metadata: {
               "x-amz-meta-title": this.title,
+              "x-amz-meta-user": this.user,
               "x-amz-meta-id": response.data.id,
-              "x-amz-meta-time": response.data.datetime
-            }
+              "x-amz-meta-desc": this.desc,
+              "x-amz-meta-time": response.data.datetime,
+            },
           },
         });
         console.log("Video uploaded successfully");
-        await axios.post("http://localhost:5001/thumbnail", {
-          key: "videos/"+this.user+"/"+this.title,
+        await axios.post("http://localhost:5001/tasks", {
+          key: "videos/" + this.user + "/" + this.title,
           user: this.user,
           title: this.title,
           id: response.data.id,
-          time: response.data.datetime
-        }); 
-        console.log("Thumbnail fetched")
+          time: response.data.datetime,
+        });
+        console.log("Thumbnail fetched");
         await axios.post("http://localhost:5000/initialize", {
           video_id: response.data.id,
         });
@@ -141,51 +172,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.containers-container {
-  display: flex;
-  justify-content: center;
-}
-.container {
-  display: flex;
-}
-.thumbnail {
-  width: 400px;
-  height: 300px;
-  object-fit: cover;
-  border: 1px solid #ccc;
-}
-.details {
-  flex: 1;
-  margin-left: 20px;
-}
-.input {
-  margin-bottom: 20px;
-  width: 600px;
-}
-.input label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.input input[type="text"],
-.input textarea {
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-}
-.buttons {
-  display: flex;
-  padding-left: 500px;
-  justify-content: space-between;
-  width: 100px;
-}
-buttons button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-</style>

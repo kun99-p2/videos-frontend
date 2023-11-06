@@ -1,15 +1,24 @@
 <template>
-  <div class="videos-container">
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
     <div
       v-for="thumbnail in thumbnails"
-      :key="thumbnail"
+      :key="thumbnail[0].metadata.id"
       class="thumbnail-item"
     >
-      <!--<video controls :src="video" height="300" width="500"></video>-->
-      <img
-        :src="thumbnail[0].file"
-        @click="clickedVideo(thumbnail[0].metadata.id, thumbnail[0].metadata.title)"
-      />
+      <div>
+        <img
+          :src="thumbnail[0].file"
+          @click="
+            clickedVideo(
+              thumbnail[0].metadata.id,
+              thumbnail[0].metadata.user,
+              thumbnail[0].metadata.title
+            )
+          "
+          class="h-auto max-w-full rounded-lg cursor-pointer"
+        />
+        <p>{{ thumbnail[0].metadata.title }} - {{ thumbnail[0].metadata.user }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -44,8 +53,14 @@ export default {
     };
   },
   methods: {
-    clickedVideo(id, title) {
-      window.location.href = "http://localhost:4001/video?vid=" + id + "&user=" + this.user + "&title=" + title;
+    clickedVideo(id, user, title) {
+      window.location.href =
+        "http://localhost:4001/video?vid=" +
+        id +
+        "&user=" +
+        user +
+        "&title=" +
+        title;
     },
     sortVids() {
       let axiosRequests = [];
